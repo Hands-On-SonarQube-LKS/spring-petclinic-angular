@@ -1,0 +1,42 @@
+name: SonarQube
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18 # PetClinic Angular suele requerir Node 16 o 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        # Usamos 'install' en lugar de 'ci' para evitar errores si no hay lockfile exacto
+        run: npm install --legacy-peer-deps
+
+      - name: Test and Coverage
+        # Esto es CRÍTICO: Ejecuta los tests sin interfaz gráfica (ChromeHeadless) y genera el reporte lcov
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=hands-on-sonarqube-lks
+            -Dsonar.projectKey=hands-on-sonarqube-petclinic-angular
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts,**/environments/**
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
