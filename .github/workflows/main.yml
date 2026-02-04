@@ -13,22 +13,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Node 18 o 20 son demasiado nuevos y rompen 'node-sass' y 'karma'.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 14
-          # Quitamos caché por ahora para asegurar instalación limpia
+          node-version: 18
+          cache: 'npm'
 
       - name: Install dependencies
+        # --legacy-peer-deps es vital aquí por el mix de versiones
         run: npm install --legacy-peer-deps
 
-      # A veces en CI falta este plugin explícito que causa el error "reporter coverage not registered"
-      - name: Install Karma Coverage Plugin manually
-        run: npm install --legacy-peer-deps --save-dev karma-coverage
+      # Esto arregla el error "reporter coverage is not registered"
+      - name: Install Coverage Reporter
+        run: npm install karma-coverage --save-dev --legacy-peer-deps
 
       - name: Test and Coverage
-        # Usamos ChromeHeadless para que funcione en servidor
+        # Configuración para que Chrome no necesite pantalla (Headless)
         run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
       - name: SonarQube Scan
