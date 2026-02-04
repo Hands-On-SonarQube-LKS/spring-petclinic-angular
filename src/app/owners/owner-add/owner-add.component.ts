@@ -20,7 +20,7 @@
  * @author Vitaliy Fedoriv
  */
 
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {OwnerService} from '../owner.service';
 import {Owner} from '../owner';
 import {Router} from '@angular/router';
@@ -30,16 +30,13 @@ import {Router} from '@angular/router';
   templateUrl: './owner-add.component.html',
   styleUrls: ['./owner-add.component.css']
 })
-export class OwnerAddComponent implements OnInit {
+export class OwnerAddComponent {
 
   owner: Owner;
   errorMessage: string;
 
   constructor(private ownerService: OwnerService, private router: Router) {
     this.owner = {} as Owner;
-  }
-
-  ngOnInit() {
   }
 
   onSubmit(owner: Owner) {
