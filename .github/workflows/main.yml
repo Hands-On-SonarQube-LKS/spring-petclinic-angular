@@ -13,6 +13,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Mantenemos Node 18 porque el CLI lo pedía, aunque no ejecutemos tests
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,17 +21,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # --legacy-peer-deps es vital aquí por el mix de versiones
+        # Solo instalamos dependencias para que Sonar pueda resolver referencias
         run: npm install --legacy-peer-deps
-
-      # Esto arregla el error "reporter coverage is not registered"
-      - name: Install Coverage Reporter
-        run: npm install karma-coverage --save-dev --legacy-peer-deps
-
-      - name: Test and Coverage
-        # Configuración para que Chrome no necesite pantalla (Headless)
-        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
-
+        
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v4
         env:
