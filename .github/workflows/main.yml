@@ -13,18 +13,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Node 18 o 20 son demasiado nuevos y rompen 'node-sass' y 'karma'.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18 # PetClinic Angular suele requerir Node 16 o 18
-          cache: 'npm'
+          node-version: 14
+          # Quitamos caché por ahora para asegurar instalación limpia
 
       - name: Install dependencies
-        # Usamos 'install' en lugar de 'ci' para evitar errores si no hay lockfile exacto
         run: npm install --legacy-peer-deps
 
+      # A veces en CI falta este plugin explícito que causa el error "reporter coverage not registered"
+      - name: Install Karma Coverage Plugin manually
+        run: npm install --legacy-peer-deps --save-dev karma-coverage
+
       - name: Test and Coverage
-        # Esto es CRÍTICO: Ejecuta los tests sin interfaz gráfica (ChromeHeadless) y genera el reporte lcov
+        # Usamos ChromeHeadless para que funcione en servidor
         run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
       - name: SonarQube Scan
